@@ -25,7 +25,7 @@
               v-model="form.name"
               type="text"
               required
-              placeholder="e.g., Aaa bbb"
+              placeholder="Azathoth"
               :pattern="namePattern"
           ></b-form-input>
           <b-form-invalid-feedback>
@@ -43,7 +43,7 @@
               type="email"
               required
               :pattern="emailPattern"
-              placeholder="e.g., aa@bb.com"
+              placeholder="cthulhu@mythos.com"
           ></b-form-input>
           <b-form-invalid-feedback>
             Please enter a valid Email.
@@ -59,7 +59,7 @@
               v-model="form.password"
               type="password"
               required
-              placeholder="e.g., ........."
+              placeholder="...."
               :pattern="passwordPattern"
           ></b-form-input>
           <b-form-invalid-feedback>
@@ -174,13 +174,17 @@
 </script>
 
 <style scoped>
+  .auth-container{
+    text-align: center;
+  }
 
   .auth{
-    padding: 5rem 0;
-    display: flex;
+    padding: 5rem 4rem;
+    display: inline-block;
+    background: white;
     flex-direction: column;
     align-items: center;
-    margin: 0 0.5rem;
+    margin: 1.0rem;
   }
 
   .title{

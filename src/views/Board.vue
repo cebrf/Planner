@@ -62,7 +62,7 @@
     },
     methods: {
       editBoardName() {
-        
+        // TODO
       },
       deleteBoard() {
         if(confirm("Do you really want to delete?")){
