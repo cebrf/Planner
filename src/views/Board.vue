@@ -65,7 +65,17 @@
         
       },
       deleteBoard() {
+        if(confirm("Do you really want to delete?")){
+          console.log("Deleted", this.$route.params.id);
 
+          this.$store.dispatch('deleteBoard', {
+            boardId: this.$route.params.id
+          });
+
+          this.$router.push('/');
+        } else {
+          console.log("NOT deleted", this.$route.params.id);
+        }
       },
       onDrop (dropResult) {
 
@@ -107,6 +117,11 @@
   }
 
   .action-icon{
-    padding-left: 1.0rem;
+    margin-left: 1.0rem;
+  }
+
+  .action-icon:hover {
+    background: rgba(211, 215, 217, 0.7);
+    cursor: pointer;
   }
 </style>

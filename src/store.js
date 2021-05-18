@@ -273,6 +273,21 @@ const store = new Vuex.Store({
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }).then(() => console.log('card updated'))
         .catch((err) => console.log(err))
+    },
+    async deleteBoard(context, {boardId}) {
+      try{
+        firestore.collection('lists')
+        .where("boardId", "==", boardId)
+        .onSnapshot(function(querySnapshot) {
+          querySnapshot.forEach(function(doc) {
+            firestore.collection('lists').doc(doc.id).delete();
+          });
+        });
+
+        await firestore.collection('boards').doc(boardId).delete()
+      } catch (e) {
+        console.log(e, "       <", boardId)
+      }      
     }
   },
   getters: {
