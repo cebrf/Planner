@@ -11,7 +11,7 @@
         <b-nav-item href="#" disabled>
           <div class="user">{{initials}}</div>
         </b-nav-item>
-        <b-nav-item href="#" @click="signOut">Logout</b-nav-item>
+        <b-nav-item class="logout" href="#" @click="signOut">Logout</b-nav-item>
       </b-navbar-nav>
     </b-navbar>
   </div>
@@ -73,6 +73,10 @@
   }
 
   .navbar{
-      background-color: rgb(110, 110, 110)!important;
+      background-color: rgb(56, 64, 100)!important;
+  }
+
+  .logout {
+    font-size: 1.2em;
   }
 </style>

@@ -52,7 +52,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-size: 1.25rem;
-    background: rgb(172, 172, 172);
+    background: rgb(157, 165, 188);
     min-height: 100%;
     display: flex;
     flex-direction: column;
