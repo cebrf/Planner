@@ -20,6 +20,14 @@ const router = new Router({
       meta: {
         requiresAuth: true
       }
+    },
+    {
+      path: '/board/:id',
+      name: 'board',
+      component: () => import('./views/Board.vue'),
+      meta: {
+        requiresAuth: true
+      }
     }
   ]
 })
