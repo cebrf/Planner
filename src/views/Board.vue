@@ -3,7 +3,7 @@
     <div class="board-title pl-3 h3 text-dark mb-0"
       @mouseover="showBoardEditBtn = true"
       @mouseleave="showBoardEditBtn = false">
-      {{$store.state.board.name}}
+      {{ (typeof(this.$store.state.board) !== 'undefined') ? this.$store.state.board.name : "Doard is deleted" }}
       <span class="edit-icon action-icon" v-show="showBoardEditBtn">
         <font-awesome-icon @click="editBoardName" :icon="edit" size="xs"/>
       </span>
@@ -11,7 +11,7 @@
         <font-awesome-icon @click="deleteBoard" :icon="del" size="xs"/>
       </span>
     </div>
-    <Container @drop="onDrop" orientation="horizontal" class="boards">
+    <Container @drop="onDrop" orientation="horizontal" class="boards" v-if="(typeof(this.$store.state.board) !== 'undefined')">
       <Draggable v-for="list in orderedList" :key="list.id">
         <List :id="list.id" :title="list.title" :cards="list.cards"/>
       </Draggable>
@@ -45,7 +45,12 @@
     computed: {
       orderedList: {
         get() {
-          return this.$store.getters.orderedList;
+          if (typeof(this.$store.state.board) !== 'undefined')
+            return this.$store.getters.orderedList;
+          else {
+            console.log("board is deleted");
+            return null;
+          }
         }
       },
       edit() {
@@ -78,7 +83,6 @@
         }
       },
       onDrop (dropResult) {
-
         const { removedIndex, addedIndex } = dropResult;
 
         if(removedIndex !== addedIndex){
