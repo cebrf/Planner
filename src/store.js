@@ -155,7 +155,8 @@ const store = new Vuex.Store({
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
           lists: [],
-          createdBy: state.uid
+          createdBy: state.uid,
+          availableTo: [state.uid]
         }).then(() => {
           resolve('added')
         }).catch(err => {
@@ -174,15 +175,16 @@ const store = new Vuex.Store({
     },
     fetchBoards({ state, commit }) {
       let boardsListener = firestore.collection('boards')
-        .where("createdBy", "==", state.uid)
         .orderBy("updatedAt", "desc")
         .onSnapshot(function(querySnapshot) {
           let boards = [];
           querySnapshot.forEach(function(doc) {
-            boards.push({
-              id: doc.id,
-              name: doc.data().name
-            });
+            if (doc.data().availableTo.includes(state.uid)) {
+              boards.push({
+                id: doc.id,
+                name: doc.data().name
+              });
+            }
           });
           commit('addBoards', boards)
         });
