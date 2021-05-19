@@ -10,6 +10,13 @@
       <span class="delete-icon action-icon" v-show="showBoardEditBtn">
         <font-awesome-icon @click="deleteBoard" :icon="del" size="xs"/>
       </span>
+      <input 
+          type="email" 
+          v-model="user_email"
+          name="user_email"
+          value="User email"
+          >
+      <button v-on:click="sendEmail"> Send invite </button>
     </div>
     <Container @drop="onDrop" orientation="horizontal" class="boards" v-if="(typeof(this.$store.state.board) !== 'undefined')">
       <Draggable v-for="list in orderedList" :key="list.id">
@@ -62,10 +69,24 @@
     },
     data() {
       return {
-        showBoardEditBtn: false
+        showBoardEditBtn: false,
+        user_email: ''
       }
     },
     methods: {
+      sendEmail: function () {
+        alert("Alert!");
+
+        this.$store.dispatch('addUserInBoard', {
+          email: this.user_email,
+          boardId: this.$route.params.id
+        });
+
+        this.$store.dispatch('sendInvite', {
+          email: this.user_email,
+          boardId: this.$route.params.id
+        });
+      },
       editBoardName() {
         // TODO
       },

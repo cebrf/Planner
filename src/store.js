@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import { auth, firestore, googleProvider, firebase } from './config/firebaseConfig'
 import uuidv4 from 'uuid'
+import emailjs from 'emailjs-com';
 
 Vue.use(Vuex)
 
@@ -9,6 +10,7 @@ const store = new Vuex.Store({
   state: {
     'uid': null,
     'initials': '',
+    'email': '',
     'submitting': false,
     'boards': [],
     'board': {},
@@ -24,6 +26,9 @@ const store = new Vuex.Store({
     },
     setInitials(state, initials){
       state.initials = initials;
+    },
+    setEmail(state, value){
+      state.email = email;
     },
     setSubmitting(state, value){
       state.submitting = value
@@ -72,7 +77,8 @@ const store = new Vuex.Store({
               .reduce((accumulator, currentValue) => accumulator + currentValue[0])
             firestore.collection('users').doc(uid).set({
               name,
-              initials
+              initials,
+              email
             })
         })
           .then((res) => {
@@ -147,6 +153,46 @@ const store = new Vuex.Store({
     },
     getBoards({ dispatch }) {
       dispatch('fetchBoards')
+    },
+    async addUserInBoard(context, {email, boardId}) {
+      let board = await firestore.collection('boards').doc(boardId).get();
+      let avblToNew = board.data().availableTo;
+
+      await firestore.collection('users')
+        .where("email", "==", email)
+        .onSnapshot(function(querySnapshot) {
+          querySnapshot.forEach(function(doc) {
+            if (doc.data().email == email) {
+              let userId = doc.id;
+              avblToNew.push(userId);
+              
+              firestore.collection('boards').doc(boardId).update({
+                availableTo: avblToNew
+              })
+
+              console.log("UPDATED");
+            }
+        });
+      });
+    },
+    async sendInvite(context, {email, boardId}) {
+      let board = await firestore.collection('boards').doc(boardId).get();
+      let boardName = board.data().name;
+      let msg = "Hello! You was invited to board " + boardName + ".\n" 
+            + "You can visit board: http://localhost:8080/board/" + boardId;
+      let params = {
+        name: "User",
+        email: email,
+        message: msg,
+        from_name: "Planner"
+      };
+
+      emailjs.send('Planner', 'template_k7zgz4n', params, 'user_CmY4NXYyWpu88LAwNkwUi')
+        .then((result) => {
+            console.log('SUCCESS!', result.status, result.text);
+        }, (error) => {
+            console.log('FAILED...', error);
+      });
     },
     createBoard({ state }, name) {
       return new Promise((resolve, reject) => {
