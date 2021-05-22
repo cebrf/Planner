@@ -194,6 +194,23 @@ const store = new Vuex.Store({
             console.log('FAILED...', error);
       });
     },
+    async leaveBoard({ state }, boardId) {
+      let userId = state.uid;
+      let board = await firestore.collection('boards').doc(boardId).get();
+      let avblTo = board.data().availableTo;
+
+      let indx = avblTo.indexOf(userId);
+      if (indx > -1) {
+        avblTo.splice(indx, 1);
+        console.log("removed");
+      } else {
+        console.log("not found");
+      }
+
+      firestore.collection('boards').doc(boardId).update({
+        availableTo: avblTo
+      })
+    },
     createBoard({ state }, name) {
       return new Promise((resolve, reject) => {
         firestore.collection('boards').add({
@@ -228,8 +245,10 @@ const store = new Vuex.Store({
             if (doc.data().availableTo.includes(state.uid)) {
               boards.push({
                 id: doc.id,
-                name: doc.data().name
+                name: doc.data().name,
+                createdBy: doc.data().createdBy
               });
+              console.log("added: ", doc.id);
             }
           });
           commit('addBoards', boards)
@@ -349,6 +368,20 @@ const store = new Vuex.Store({
           }
         })
       }
+    },
+    isBoardCreator: state => (boardId) => {
+      for(let board of state.boards){
+        if(board.id  === boardId){
+          if (board.createdBy === state.uid) {
+            console.log("Creator");
+            return true;
+          } else {
+            console.log("Invited user");
+            return false;
+          }  
+        }
+      }
+      console.log("error");
     }
   }
 })

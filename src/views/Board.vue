@@ -7,7 +7,7 @@
       <span class="edit-icon action-icon" v-show="showBoardEditBtn">
         <font-awesome-icon @click="editBoardName" :icon="edit" size="xs"/>
       </span>
-      <span class="delete-icon action-icon" v-show="showBoardEditBtn">
+      <span class="delete-icon action-icon" v-show="showBoardDeleteBtn">
         <font-awesome-icon @click="deleteBoard" :icon="del" size="xs"/>
       </span>
       <input 
@@ -17,6 +17,7 @@
           value="User email"
           >
       <button v-on:click="sendEmail"> Send invite </button>
+      <button class="leaveBtn" v-show="showLeaveBoardBtn" v-on:click="leaveBoard"> Leave board </button>
     </div>
     <Container @drop="onDrop" orientation="horizontal" class="boards" v-if="(typeof(this.$store.state.board) !== 'undefined')">
       <Draggable v-for="list in orderedList" :key="list.id">
@@ -70,13 +71,13 @@
     data() {
       return {
         showBoardEditBtn: false,
+        showBoardDeleteBtn: (this.$store.getters.isBoardCreator(this.$route.params.id)),
+        showLeaveBoardBtn: !(this.$store.getters.isBoardCreator(this.$route.params.id)),
         user_email: ''
       }
     },
     methods: {
       sendEmail: function () {
-        alert("Alert!");
-
         this.$store.dispatch('addUserInBoard', {
           email: this.user_email,
           boardId: this.$route.params.id
@@ -86,6 +87,13 @@
           email: this.user_email,
           boardId: this.$route.params.id
         });
+      },
+      leaveBoard: function () {
+        if(confirm("Do you really want to leave this board?")){
+          this.$store.dispatch('leaveBoard', this.$route.params.id);
+
+          this.$router.push('/');
+        }
       },
       editBoardName() {
         // TODO
@@ -130,6 +138,10 @@
     margin-left: 1.0rem;
     padding: 1.0rem;
     display: inline-block;
+  }
+
+  .leaveBtn{
+    text-align: right;
   }
 
   .boards{
