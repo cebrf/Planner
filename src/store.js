@@ -154,9 +154,9 @@ const store = new Vuex.Store({
     getBoards({ dispatch }) {
       dispatch('fetchBoards')
     },
-    async addUserInBoard(context, {email, boardId}) {
+    async inviteUserInBoard(context, {email, boardId}) {
       let board = await firestore.collection('boards').doc(boardId).get();
-      let avblToNew = board.data().availableTo;
+      let invited = board.data().invited;
 
       await firestore.collection('users')
         .where("email", "==", email)
@@ -164,10 +164,10 @@ const store = new Vuex.Store({
           querySnapshot.forEach(function(doc) {
             if (doc.data().email == email) {
               let userId = doc.id;
-              avblToNew.push(userId);
+              invited.push(userId);
               
               firestore.collection('boards').doc(boardId).update({
-                availableTo: avblToNew
+                invited: invited
               })
 
               console.log("UPDATED");
@@ -190,6 +190,7 @@ const store = new Vuex.Store({
       emailjs.send('Planner', 'template_k7zgz4n', params, 'user_CmY4NXYyWpu88LAwNkwUi')
         .then((result) => {
             console.log('SUCCESS!', result.status, result.text);
+            alert("Invite was send");
         }, (error) => {
             console.log('FAILED...', error);
       });
@@ -219,7 +220,8 @@ const store = new Vuex.Store({
           updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
           lists: [],
           createdBy: state.uid,
-          availableTo: [state.uid]
+          availableTo: [state.uid],
+          invited: []
         }).then(() => {
           resolve('added')
         }).catch(err => {
@@ -295,6 +297,27 @@ const store = new Vuex.Store({
           reject(err)
         })
       });
+    },
+    async checkInvited({ state }, boardId) {
+      let board = await firestore.collection('boards').doc(boardId).get();
+      let avblTo = board.data().availableTo;
+      let invited = board.data().invited;
+
+      let indx = invited.indexOf(state.uid);
+      if (indx > -1) {
+        // user was invited to this board
+        // move him to availableTo
+
+        invited.splice(indx, 1);
+        avblTo.push(state.uid);
+              
+        await firestore.collection('boards').doc(boardId).update({
+          availableTo: avblTo,
+          invited: invited
+        })
+
+        console.log("user is invited to this board");
+      }
     },
     fetchLists({ commit }, boardId) {
       let listListener = firestore.collection('lists')
@@ -382,6 +405,18 @@ const store = new Vuex.Store({
         }
       }
       console.log("error");
+    },
+    isAlailableTo: state => (boardId) => {
+      for(let board of state.boards){
+        console.log("board: ", board.id);
+        if(board.id  === boardId){
+          console.log("board is in list");
+          return true;  
+        }
+      }
+
+      console.log("board not found");
+      return false;
     }
   }
 })

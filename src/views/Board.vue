@@ -1,30 +1,35 @@
 <template>
   <div>
-    <div class="board-title pl-3 h3 text-dark mb-0"
-      @mouseover="showBoardEditBtn = true"
-      @mouseleave="showBoardEditBtn = false">
-      {{ (typeof(this.$store.state.board) !== 'undefined') ? this.$store.state.board.name : "Doard is deleted" }}
-      <span class="edit-icon action-icon" v-show="showBoardEditBtn">
-        <font-awesome-icon @click="editBoardName" :icon="edit" size="xs"/>
-      </span>
-      <span class="delete-icon action-icon" v-show="showBoardDeleteBtn">
-        <font-awesome-icon @click="deleteBoard" :icon="del" size="xs"/>
-      </span>
-      <input 
-          type="email" 
-          v-model="user_email"
-          name="user_email"
-          value="User email"
-          >
-      <button v-on:click="sendEmail"> Send invite </button>
-      <button class="leaveBtn" v-show="showLeaveBoardBtn" v-on:click="leaveBoard"> Leave board </button>
+    <div class="err" v-show="!(showBoard)">
+      This board does't exist or is unavailable
     </div>
-    <Container @drop="onDrop" orientation="horizontal" class="boards" v-if="(typeof(this.$store.state.board) !== 'undefined')">
-      <Draggable v-for="list in orderedList" :key="list.id">
-        <List :id="list.id" :title="list.title" :cards="list.cards"/>
-      </Draggable>
-      <AddListButton/>
-    </Container>
+    <div class="content" v-show="showBoard">
+      <div class="board-title pl-3 h3 text-dark mb-0"
+        @mouseover="showBoardEditBtn = true"
+        @mouseleave="showBoardEditBtn = false">
+        {{ (typeof(this.$store.state.board) !== 'undefined') ? this.$store.state.board.name : "Doard is deleted" }}
+        <span class="edit-icon action-icon" v-show="showBoardEditBtn">
+          <font-awesome-icon @click="editBoardName" :icon="edit" size="xs"/>
+        </span>
+        <span class="delete-icon action-icon" v-show="showBoardDeleteBtn">
+          <font-awesome-icon @click="deleteBoard" :icon="del" size="xs"/>
+        </span>
+        <input 
+            type="email" 
+            v-model="user_email"
+            name="user_email"
+            value="User email"
+            >
+        <button v-on:click="sendEmail"> Send invite </button>
+        <button class="leaveBtn" v-show="showLeaveBoardBtn" v-on:click="leaveBoard"> Leave board </button>
+      </div>
+      <Container @drop="onDrop" orientation="horizontal" class="boards" v-if="(typeof(this.$store.state.board) !== 'undefined')">
+        <Draggable v-for="list in orderedList" :key="list.id">
+          <List :id="list.id" :title="list.title" :cards="list.cards"/>
+        </Draggable>
+        <AddListButton/>
+      </Container>
+    </div>
   </div>
 </template>
 
@@ -37,6 +42,8 @@
   export default {
     name: "Board",
     created(){
+      this.$store.dispatch('checkInvited', this.$route.params.id)
+      this.$store.dispatch('fetchBoards') // this need to check if user have permission to use board
       this.$store.dispatch('fetchLists', this.$route.params.id)
       this.$store.dispatch('currentBoard', this.$route.params.id)
     },
@@ -66,6 +73,21 @@
       },
       del() {
         return faTrashAlt
+      },
+      showLeaveBoardBtn: {
+        get() {
+          return !(this.$store.getters.isBoardCreator(this.$route.params.id));
+        }
+      },
+      showBoard: {
+        get() {
+          return this.$store.getters.isAlailableTo(this.$route.params.id);
+        }
+      },
+      showBoardDeleteBtn: {
+        get() {
+          return (this.$store.getters.isBoardCreator(this.$route.params.id));
+        }
       }
     },
     data() {
@@ -78,7 +100,7 @@
     },
     methods: {
       sendEmail: function () {
-        this.$store.dispatch('addUserInBoard', {
+        this.$store.dispatch('inviteUserInBoard', {
           email: this.user_email,
           boardId: this.$route.params.id
         });
@@ -138,6 +160,11 @@
     margin-left: 1.0rem;
     padding: 1.0rem;
     display: inline-block;
+  }
+
+  .err {
+    text-align: center;
+    margin-top: 4rem;
   }
 
   .leaveBtn{
