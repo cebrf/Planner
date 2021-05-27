@@ -1,5 +1,14 @@
 <template>
   <div>
+    <modal id="show-users" v-cloak>
+      <template slot="title">Board users</template>
+      <div slot="body">
+        <div v-for="(user, index) in boardUsers" :key="user.id">
+          {{ index }}: {{ user.name }}
+          <button class="removeUser" v-show="showRemoveUserBtn(user.id)" v-on:click="removeUser(user.id)"> remove </button>
+        </div>
+      </div>
+    </modal>
     <div class="err" v-show="!(showBoard)">
       This board does't exist or is unavailable
     </div>
@@ -22,6 +31,7 @@
             >
         <button v-on:click="sendEmail"> Send invite </button>
         <button class="leaveBtn" v-show="showLeaveBoardBtn" v-on:click="leaveBoard"> Leave board </button>
+        <button class="showUsers" v-on:click="showUsers"> Show board users </button>
       </div>
       <Container @drop="onDrop" orientation="horizontal" class="boards" v-if="(typeof(this.$store.state.board) !== 'undefined')">
         <Draggable v-for="list in orderedList" :key="list.id">
@@ -34,14 +44,20 @@
 </template>
 
 <script>
+  import Vue from 'vue'
   import {faPenAlt, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
   import List from '../components/ui/List'
   import AddListButton from "../components/ui/AddListButton";
   import { Container, Draggable } from "vue-smooth-dnd";
+  import { Modal, VoerroModal } from '@voerro/vue-modal';
+
+  Vue.component('modal', Modal);
+  window.VoerroModal = VoerroModal;
 
   export default {
     name: "Board",
     created(){
+      this.$store.dispatch('checkIsAuthenticated')
       this.$store.dispatch('checkInvited', this.$route.params.id)
       this.$store.dispatch('fetchBoards') // this need to check if user have permission to use board
       this.$store.dispatch('fetchLists', this.$route.params.id)
@@ -68,6 +84,18 @@
           }
         }
       },
+      boardUsers: {
+        get() {
+          if (typeof(this.$store.state.board) !== 'undefined') {
+            let users = this.$store.getters.boardUsers(this.$route.params.id);
+
+            return users;
+          } else {
+            console.log("boardUsers: board is deleted");
+            return null;
+          }
+        }
+      },
       edit() {
         return faPenAlt
       },
@@ -76,30 +104,32 @@
       },
       showLeaveBoardBtn: {
         get() {
-          return !(this.$store.getters.isBoardCreator(this.$route.params.id));
+          return !(this.$store.getters.isBoardCreator(this.$route.params.id))
         }
       },
       showBoard: {
         get() {
-          return this.$store.getters.isAlailableTo(this.$route.params.id);
+          return this.$store.getters.isAlailableTo(this.$route.params.id)
         }
       },
       showBoardDeleteBtn: {
         get() {
-          return (this.$store.getters.isBoardCreator(this.$route.params.id));
+          return (this.$store.getters.isBoardCreator(this.$route.params.id))
         }
       }
     },
     data() {
       return {
         showBoardEditBtn: false,
-        showBoardDeleteBtn: (this.$store.getters.isBoardCreator(this.$route.params.id)),
-        showLeaveBoardBtn: !(this.$store.getters.isBoardCreator(this.$route.params.id)),
         user_email: ''
       }
     },
     methods: {
       sendEmail: function () {
+        if ("=========", this.user_email === '') {
+          return;
+        }
+
         this.$store.dispatch('inviteUserInBoard', {
           email: this.user_email,
           boardId: this.$route.params.id
@@ -110,6 +140,12 @@
           boardId: this.$route.params.id
         });
       },
+      showRemoveUserBtn(userId) {
+        let isBoardCreator = this.$store.getters.isBoardCreator(this.$route.params.id);
+        let isCurUser = (userId == this.$store.state.uid);
+
+        return (isBoardCreator && (!isCurUser));
+      },
       leaveBoard: function () {
         if(confirm("Do you really want to leave this board?")){
           this.$store.dispatch('leaveBoard', this.$route.params.id);
@@ -119,6 +155,14 @@
       },
       editBoardName() {
         // TODO
+      },
+      removeUser(userId) {
+        // TODO
+        console.log("remove user: ", userId);
+      },
+      showUsers() {
+        console.log("Hello!");
+        VoerroModal.show('show-users');
       },
       deleteBoard() {
         if(confirm("Do you really want to delete?")){

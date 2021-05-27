@@ -9,6 +9,7 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
   state: {
     'uid': null,
+    'username': '',
     'initials': '',
     'email': '',
     'submitting': false,
@@ -24,17 +25,22 @@ const store = new Vuex.Store({
     setUid(state, uid){
       state.uid = uid;
     },
+    setUsername(state, username){
+      state.username = username
+    },
     setInitials(state, initials){
       state.initials = initials;
     },
     setEmail(state, value){
-      state.email = email;
+      state.email = value;
     },
     setSubmitting(state, value){
       state.submitting = value
     },
     reset(state){
       state.uid = null
+      state.username = ''
+      state.email = ''
       state.initials = ''
       state.submitting = false
       state.boards = []
@@ -71,8 +77,13 @@ const store = new Vuex.Store({
       commit('setSubmitting', true);
       return new Promise((resolve, reject) => {
         auth.createUserWithEmailAndPassword(email, password)
-          .then(res => res.user.uid)
-          .then((uid) => {
+          .then(result => {
+            result.user.updateProfile({
+              displayName: name
+            });
+            alert("ADD NAME");
+
+            let uid = result.user.uid;
             let initials = ['', ...name.split(' ')]
               .reduce((accumulator, currentValue) => accumulator + currentValue[0])
             firestore.collection('users').doc(uid).set({
@@ -115,7 +126,8 @@ const store = new Vuex.Store({
             if(result.additionalUserInfo.isNewUser){
               firestore.collection('users').doc(result.user.uid).set({
                 name,
-                initials
+                initials,
+                email
               });
             }
             resolve();
@@ -140,7 +152,9 @@ const store = new Vuex.Store({
         auth.onAuthStateChanged(function(user) {
           if (user) {
             let uid = user.uid;
+            let username = user.displayName;
             commit('setUid', uid);
+            commit('setUsername', username);
             dispatch('fetchUserInfo', uid);
             localStorage.setItem('authUser', JSON.stringify({authenticated : true}));
             resolve()
@@ -164,7 +178,9 @@ const store = new Vuex.Store({
           querySnapshot.forEach(function(doc) {
             if (doc.data().email == email) {
               let userId = doc.id;
-              invited.push(userId);
+              console.log("............doc.data().name = ", doc.data().name);
+              let userName = doc.data().name;
+              invited.push( { id: userId, name: userName } );
               
               firestore.collection('boards').doc(boardId).update({
                 invited: invited
@@ -200,7 +216,9 @@ const store = new Vuex.Store({
       let board = await firestore.collection('boards').doc(boardId).get();
       let avblTo = board.data().availableTo;
 
-      let indx = avblTo.indexOf(userId);
+      let indx = avblTo.findIndex(obj => {
+        return obj.id === state.uid
+      });
       if (indx > -1) {
         avblTo.splice(indx, 1);
         console.log("removed");
@@ -219,8 +237,8 @@ const store = new Vuex.Store({
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
           lists: [],
-          createdBy: state.uid,
-          availableTo: [state.uid],
+          createdBy: { id: state.uid, name: state.username },
+          availableTo: [ { id: state.uid, name: state.username } ],
           invited: []
         }).then(() => {
           resolve('added')
@@ -234,6 +252,8 @@ const store = new Vuex.Store({
         let user = await firestore.collection('users').doc(uid).get();
         let data = user.data();
         commit('setInitials', data.initials.substring(0,2));
+        commit('setUsername', data.name);
+        
       }catch(err){
         console.log(err)
       }
@@ -244,11 +264,15 @@ const store = new Vuex.Store({
         .onSnapshot(function(querySnapshot) {
           let boards = [];
           querySnapshot.forEach(function(doc) {
-            if (doc.data().availableTo.includes(state.uid)) {
+            let indx = doc.data().availableTo.findIndex(obj => {
+              return obj.id === state.uid
+            });
+            if (indx > -1) {
               boards.push({
                 id: doc.id,
                 name: doc.data().name,
-                createdBy: doc.data().createdBy
+                createdBy: doc.data().createdBy,
+                users: doc.data().availableTo
               });
               console.log("added: ", doc.id);
             }
@@ -303,13 +327,18 @@ const store = new Vuex.Store({
       let avblTo = board.data().availableTo;
       let invited = board.data().invited;
 
-      let indx = invited.indexOf(state.uid);
+      let user = invited.find(obj => {
+        return obj.id === state.uid
+      });
+      let indx = invited.findIndex(obj => {
+        return obj.id === state.uid
+      });
       if (indx > -1) {
         // user was invited to this board
         // move him to availableTo
 
         invited.splice(indx, 1);
-        avblTo.push(state.uid);
+        avblTo.push( user );
               
         await firestore.collection('boards').doc(boardId).update({
           availableTo: avblTo,
@@ -392,10 +421,21 @@ const store = new Vuex.Store({
         })
       }
     },
+    boardUsers: state => (boardId) => {
+      console.log("Called");
+
+      for(let board of state.boards){
+        if(board.id  === boardId){
+          console.log("==============> boardUsers");
+          console.log(board.users[0]);
+          return board.users;
+        }
+      }
+    },
     isBoardCreator: state => (boardId) => {
       for(let board of state.boards){
         if(board.id  === boardId){
-          if (board.createdBy === state.uid) {
+          if (board.createdBy.id === state.uid) {
             console.log("Creator");
             return true;
           } else {
