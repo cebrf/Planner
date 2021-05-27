@@ -121,6 +121,7 @@ const store = new Vuex.Store({
         auth.signInWithPopup(googleProvider)
           .then((result) => {
             let name = result.additionalUserInfo.profile.name;
+            let email = result.additionalUserInfo.profile.email;
             //extracting max two word initials from name
             let initials = ['', ...name.split(' ')].reduce((accumulator, currentValue) => accumulator + currentValue[0]).substring(0,2)
             if(result.additionalUserInfo.isNewUser){
@@ -217,7 +218,7 @@ const store = new Vuex.Store({
       let avblTo = board.data().availableTo;
 
       let indx = avblTo.findIndex(obj => {
-        return obj.id === state.uid
+        return obj.id === userId
       });
       if (indx > -1) {
         avblTo.splice(indx, 1);
