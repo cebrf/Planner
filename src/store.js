@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { auth, firestore, googleProvider, firebase } from './config/firebaseConfig'
-import uuidv4 from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 import emailjs from 'emailjs-com';
 
 Vue.use(Vuex)
