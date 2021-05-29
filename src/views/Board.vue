@@ -157,8 +157,13 @@
         // TODO
       },
       removeUser(userId) {
-        // TODO
-        console.log("remove user: ", userId);
+        this.$store.dispatch('removeUser',
+        {
+          userId: userId,
+          boardId: this.$route.params.id
+        });
+
+        console.log("user removed: ", userId, "...", this.$route.params.id);
       },
       showUsers() {
         console.log("Hello!");

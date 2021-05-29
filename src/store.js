@@ -192,6 +192,25 @@ const store = new Vuex.Store({
         });
       });
     },
+    async removeUser(context, {userId, boardId}) {
+      console.log("boardId = ", boardId);
+      let board = await firestore.collection('boards').doc(boardId).get();
+      let avblTo = board.data().availableTo;
+
+      let indx = avblTo.findIndex(obj => {
+        return obj.id === userId
+      });
+      if (indx > -1) {
+        avblTo.splice(indx, 1);
+        console.log("removed");
+      } else {
+        console.log("not found");
+      }
+
+      firestore.collection('boards').doc(boardId).update({
+        availableTo: avblTo
+      });
+    },
     async sendInvite(context, {email, boardId}) {
       let board = await firestore.collection('boards').doc(boardId).get();
       let boardName = board.data().name;
