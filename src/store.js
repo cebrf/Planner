@@ -229,6 +229,7 @@ const store = new Vuex.Store({
             alert("Invite was send");
         }, (error) => {
             console.log('FAILED...', error);
+            alert("Error. Invite wasn't send");
       });
     },
     async leaveBoard({ state }, boardId) {

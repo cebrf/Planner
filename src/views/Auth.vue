@@ -1,7 +1,7 @@
 <template>
   <div class="auth-container">
     <div class="auth">
-      <h1 class="title">{{signIn ? 'Sign in to your account' : 'Create a Planner Account'}}</h1>
+      <div class="title">{{signIn ? 'Sign in to your account' : 'Create a Planner Account'}}</div>
       <div>
         <b-alert
             :show="dismissCountDown"
@@ -16,7 +16,6 @@
       <b-form @submit.prevent="onSubmit" class="auth-form" :novalidate="true" :validated="!signIn && error">
         <b-form-group
             id="input-group-1"
-            label="Name *"
             label-for="input-1"
             v-show="!signIn"
         >
@@ -24,8 +23,9 @@
               id="input-1"
               v-model="form.name"
               type="text"
+              size="sm"
               required
-              placeholder="Azathoth"
+              placeholder="Name"
               :pattern="namePattern"
           ></b-form-input>
           <b-form-invalid-feedback>
@@ -34,16 +34,16 @@
         </b-form-group>
         <b-form-group
             id="input-group-2"
-            label="Email *"
             label-for="input-2"
         >
           <b-form-input
               id="input-2"
               v-model="form.email"
               type="email"
+              size="sm"
               required
               :pattern="emailPattern"
-              placeholder="cthulhu@mythos.com"
+              placeholder="Email"
           ></b-form-input>
           <b-form-invalid-feedback>
             Please enter a valid Email.
@@ -51,15 +51,15 @@
         </b-form-group>
         <b-form-group
             id="input-group-3"
-            label="Password *"
             label-for="input-3"
         >
           <b-form-input
               id="input-3"
               v-model="form.password"
               type="password"
+              size="sm"
               required
-              placeholder="...."
+              placeholder="Password"
               :pattern="passwordPattern"
           ></b-form-input>
           <b-form-invalid-feedback>
@@ -67,13 +67,13 @@
             character:.
           </b-form-invalid-feedback>
         </b-form-group>
-        <b-button type="submit" class="submit-btn" variant="success"
+        <b-button type="submit" class="submit-btn" variant="success" size="sm"
                   :disabled="this.$store.state.submitting">
           <div v-if="!this.$store.state.submitting">
             {{signIn ? 'LogIn' : 'SignUp'}}
           </div>
           <circle2 v-else class="form-loader"/></b-button>
-        <b-button class="google-signIn-btn" variant="outline-primary" @click="googleOAuth">
+        <b-button class="google-signIn-btn" variant="outline-primary" size="sm" @click="googleOAuth">
           <font-awesome-icon :icon="google" size="lg"/>
           {{signIn ? 'Log in' : 'Sign up'}} with Google
         </b-button>
@@ -83,7 +83,7 @@
           Create an Account? <strong @click.prevent="changeAuthType(false)">SignUp</strong>
         </div>
         <div v-else>
-          Already have an Account? <strong @click.prevent="changeAuthType(true)">LogIn</strong>
+          Already have an Account? <strong @click.prevent="changeAuthType(true)" class="logIn">LogIn</strong>
         </div>
       </div>
     </div>
@@ -179,23 +179,29 @@
   }
 
   .auth{
-    padding: 5rem 4rem;
+    border-radius: 3%;
+    padding: 2.5rem 1.5rem;
     display: inline-block;
-    background: white;
+    background: rgb(255, 255, 255);
+    min-width: 10rem;
+    opacity: 0.92;
     flex-direction: column;
     align-items: center;
+    width: 28%;
     margin: 1.0rem;
   }
 
   .title{
-    font-size: 32px;
+    font-size: 24px;
+    margin-bottom: 2rem;
   }
 
   .auth-form{
     display: flex;
     flex-direction: column;
-    width: 400px;
+    width: 90%;
     max-width: 100%;
+    margin: auto;
   }
 
   .google-signIn-btn{
@@ -206,10 +212,11 @@
     padding-top: 2rem;
     color: gray;
     display: flex;
+    margin: auto;
   }
 
   .change-auth-type div strong{
-    color: blue;
+    color: rgb(26,130,83);
     cursor: pointer;
   }
 
@@ -228,6 +235,10 @@
   .submit-btn{
     display: flex;
     justify-content: center;
+  }
+
+  .form-control-sm{
+    margin-bottom: 1rem;
   }
 
   .form-loader{

@@ -88,16 +88,13 @@
 
   .board{
     min-height: 96px;
-    background: rgb(92, 69, 98);
+    background: rgb(60, 161, 60);
     border-radius: 5px;
     padding: 10px;
     font-size: 20px;
     color: white;
     font-weight: 700;
     cursor: pointer;
-  }
-
-  .board:hover {
     text-decoration: none;
   }
 

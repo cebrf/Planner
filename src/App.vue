@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" :style="headerStyle">
     <Navbar/>
     <div class="content">
       <router-view/>
@@ -13,6 +13,19 @@
     components: {Navbar},
     created() {
       this.$store.dispatch('checkIsAuthenticated');
+    },
+    props: {
+      header: {
+        type: String,
+        default: require("@/assets/leaf.jpg")
+      }
+    },
+    computed: {
+      headerStyle() {
+        return {
+          backgroundImage: `url(${this.header})`
+        };
+      }
     }
   }
 </script>
@@ -23,6 +36,7 @@
   html, body {
     height:100%;
     background-color: white !important;
+    min-width: 320px !important;
   }
 
   ::-webkit-scrollbar {
@@ -52,13 +66,15 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-size: 1.25rem;
-    background: rgb(157, 165, 188);
+    background: rgb(60, 161, 60);
     min-height: 100%;
     display: flex;
     flex-direction: column;
   }
 
   .content {
+    height: 100vh;
+    background-color: rgba(255, 255, 255, 0.75);
     padding-top: 4rem;
   }
 

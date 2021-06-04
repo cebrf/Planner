@@ -59,7 +59,7 @@
     padding: var(--padding-s);
     font-size: 1rem;
     border-radius: var(--board-list-border-radius);
-    background: rgb(77, 72, 102);
+    background: rgb(60, 161, 60);
     cursor: pointer;
   }
 

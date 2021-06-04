@@ -5,33 +5,78 @@
       <div slot="body">
         <div v-for="(user, index) in boardUsers" :key="user.id">
           {{ index }}: {{ user.name }}
-          <button class="removeUser" v-show="showRemoveUserBtn(user.id)" v-on:click="removeUser(user.id)"> remove </button>
+          <b-button
+              class="removeUser"
+              variant="success"
+              size="sm"
+              v-show="showRemoveUserBtn(user.id)"
+              @click="removeUser(user.id)"
+          >Remove</b-button>
         </div>
       </div>
     </modal>
     <div class="err" v-show="!(showBoard)">
       This board does't exist or is unavailable
     </div>
-    <div class="content" v-show="showBoard">
-      <div class="board-title pl-3 h3 text-dark mb-0"
+    <div class="contentBoards" v-show="showBoard">
+      <b-container fluid class="board-title pl-3 h3 text-dark mb-0"
         @mouseover="showBoardEditBtn = true"
         @mouseleave="showBoardEditBtn = false">
-        {{ (typeof(this.$store.state.board) !== 'undefined') ? this.$store.state.board.name : "Doard is deleted" }}
-        <span class="edit-icon action-icon" v-show="showBoardEditBtn">
-          <font-awesome-icon @click="editBoardName" :icon="edit" size="xs"/>
-        </span>
-        <span class="delete-icon action-icon" v-show="showBoardDeleteBtn">
-          <font-awesome-icon @click="deleteBoard" :icon="del" size="xs"/>
-        </span>
-        <input 
-            type="email" 
-            v-model="user_email"
-            name="user_email"
-            value="User email"
-            >
-        <button v-on:click="sendEmail"> Send invite </button>
-        <button class="leaveBtn" v-show="showLeaveBoardBtn" v-on:click="leaveBoard"> Leave board </button>
-        <button class="showUsers" v-on:click="showUsers"> Show board users </button>
+          <b-row>
+            <b-col sm="4">
+              {{ (typeof(this.$store.state.board) !== 'undefined') ? this.$store.state.board.name : "Doard is deleted" }}
+              <span class="edit-icon action-icon" v-show="showBoardEditBtn">
+                <font-awesome-icon @click="editBoardName" :icon="edit" size="xs"/>
+              </span>
+              <span class="delete-icon action-icon" v-show="showBoardDeleteBtn">
+                <font-awesome-icon @click="deleteBoard" :icon="del" size="xs"/>
+              </span>
+            </b-col>
+            <b-col sm="6">
+              <b-form-input
+                  v-model="user_email"
+                  type="email"
+                  size="sm"
+                  required
+                  placeholder="Email"
+              ></b-form-input>
+            </b-col>
+            <b-col>
+              <b-button
+                  class="sendEmail"
+                  variant="success"
+                  size="sm"
+                  @click="sendEmail"
+              >Send invite</b-button>
+            </b-col>
+          </b-row>
+          <b-row style="margin-top: 0.5rem">
+            <b-col sm="8">
+            </b-col>
+            <b-col>
+              <b-button
+                  class="leaveBtn"
+                  variant="success"
+                  size="sm"
+                  v-show="showLeaveBoardBtn"
+                  @click="leaveBoard"
+              >Leave board</b-button>
+            </b-col>
+            <b-col>
+              <b-button
+                  class="showUsers"
+                  variant="success"
+                  size="sm"
+                  @click="showUsers"
+              >Show board users</b-button>
+            </b-col>
+          </b-row>
+        </b-container>
+
+      <div 
+        @mouseover="showBoardEditBtn = true"
+        @mouseleave="showBoardEditBtn = false">
+
       </div>
       <Container @drop="onDrop" orientation="horizontal" class="boards" v-if="(typeof(this.$store.state.board) !== 'undefined')">
         <Draggable v-for="list in orderedList" :key="list.id">
@@ -50,6 +95,7 @@
   import AddListButton from "../components/ui/AddListButton";
   import { Container, Draggable } from "vue-smooth-dnd";
   import { Modal, VoerroModal } from '@voerro/vue-modal';
+  import { BButton, BFormInput, BContainer, BRow, BCol } from 'bootstrap-vue'
 
   Vue.component('modal', Modal);
   window.VoerroModal = VoerroModal;
@@ -68,6 +114,11 @@
       this.$store.state.listListener()
     },
     components: {
+      BButton,
+      BFormInput,
+      BContainer,
+      BRow,
+      BCol,
       List,
       AddListButton,
       Container,
@@ -206,9 +257,9 @@
 
 <style scoped>
   .board-title{
-    margin-left: 1.0rem;
     padding: 1.0rem;
     display: inline-block;
+    font-size: 1.4rem;
   }
 
   .err {
@@ -226,7 +277,7 @@
     overflow: auto;
     align-items: flex-start;
     padding: 0.5rem 2rem 1rem 2rem;
-    height: calc(100vh - 4rem - 33px);
+    height: calc(100vh - 14rem - 33px);
   }
 
   .action-icon{
@@ -236,5 +287,25 @@
   .action-icon:hover {
     background: rgba(211, 215, 217, 0.7);
     cursor: pointer;
+  }
+
+  .contentBoards{
+    padding-top: 2rem;
+  }
+
+  .sendEmail{
+    margin-left: 1rem;
+  }
+
+  .leaveBtn{
+    margin-left: 1rem;
+  }
+
+  .showUsers{
+    margin-left: 1rem;
+  }
+
+  .removeUser{
+    margin-left: 2rem;
   }
 </style>

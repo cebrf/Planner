@@ -3,7 +3,6 @@
     <b-navbar toggleable="lg" type="dark" variant="info" fixed="top">
       <b-navbar-brand to="/">
         <div class="brand-title">
-          <font-awesome-icon :icon="trello" size="lg"/>
           <h3 class="mb-0 ml-2">Planner</h3>
         </div>
       </b-navbar-brand>
@@ -50,6 +49,7 @@
 <style scoped>
   .brand-title{
     display: flex;
+    margin-left: 1rem;
   }
 
   .user{
@@ -70,13 +70,15 @@
   .navbar-nav{
     align-items: center;
     flex-direction: row;
+    margin-left: auto;
   }
 
   .navbar{
-      background-color: rgb(56, 64, 100)!important;
+      background-color: rgb(30, 109, 30)!important;
   }
 
   .logout {
     font-size: 1.2em;
+    margin-right: 1rem;
   }
 </style>

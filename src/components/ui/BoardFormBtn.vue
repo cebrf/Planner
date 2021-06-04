@@ -34,6 +34,6 @@
     cursor: pointer;
   }
   .btn-submit{
-    background: rgb(77, 72, 102);
+    background: rgb(60, 161, 60);
   }
 </style>
