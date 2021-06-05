@@ -51,7 +51,7 @@
         hide-header
         d="my-modal"
         @ok="deleteList"
-    ><div class="text-danger">You are about to delete a List.</div>
+    ><div>You are about to delete a List.</div>
     </b-modal>
   </div>
 </template>

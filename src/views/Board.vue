@@ -51,7 +51,7 @@
             </b-col>
           </b-row>
           <b-row style="margin-top: 0.5rem">
-            <b-col sm="8">
+            <b-col lg="8" md="6" sm="2">
             </b-col>
             <b-col>
               <b-button
@@ -277,7 +277,11 @@
     overflow: auto;
     align-items: flex-start;
     padding: 0.5rem 2rem 1rem 2rem;
-    height: calc(100vh - 14rem - 33px);
+    height: calc(100vh - 14rem);
+  }
+
+  .smooth-dnd-container.horizontal > .smooth-dnd-draggable-wrapper{
+    height: auto;
   }
 
   .action-icon{
@@ -287,10 +291,6 @@
   .action-icon:hover {
     background: rgba(211, 215, 217, 0.7);
     cursor: pointer;
-  }
-
-  .contentBoards{
-    padding-top: 2rem;
   }
 
   .sendEmail{
