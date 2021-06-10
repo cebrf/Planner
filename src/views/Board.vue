@@ -1,6 +1,7 @@
 <template>
   <div>
     <modal
+        :dismissible="new Boolean(false)"
         id="caru">
       <template slot="title">New Edit card</template>
       <div slot="body">
