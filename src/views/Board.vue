@@ -1,5 +1,33 @@
 <template>
   <div>
+    <modal
+        id="caru">
+      <template slot="title">New Edit card</template>
+      <div slot="body">
+        <div>
+          Id: {{ activeCard.id }}
+        </div>
+        <div>
+          Create date: {{ activeCard.createdAt }}
+        </div>
+        <div>
+          Last edit date: {{ activeCard.updatedAt }}
+        </div>
+        <b-form-textarea
+            class="card-modify"
+            v-model="activeCard.info"
+            rows="3"
+            max-rows="8"
+            placeholder="Enter card detail..."
+            :autofocus="true"
+            style="overflow-y: auto"
+        />
+        <BoardFormBtn 
+            :text='"Update Card"'
+            @submit="updateCard(activeCard.info)"
+            @closeform='closeAddEditCard'/>
+      </div>      
+    </modal>
     <modal id="show-users" v-cloak>
       <template slot="title">Board users</template>
       <div slot="body">
@@ -93,9 +121,10 @@
   import {faPenAlt, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
   import List from '../components/ui/List'
   import AddListButton from "../components/ui/AddListButton";
+  import BoardFormBtn from "../components/ui/BoardFormBtn";
   import { Container, Draggable } from "vue-smooth-dnd";
   import { Modal, VoerroModal } from '@voerro/vue-modal';
-  import { BButton, BFormInput, BContainer, BRow, BCol } from 'bootstrap-vue'
+  import { BButton, BFormInput, BFormTextarea, BContainer, BRow, BCol } from 'bootstrap-vue'
 
   Vue.component('modal', Modal);
   window.VoerroModal = VoerroModal;
@@ -115,6 +144,7 @@
     },
     components: {
       BButton,
+      BFormTextarea,
       BFormInput,
       BContainer,
       BRow,
@@ -122,7 +152,8 @@
       List,
       AddListButton,
       Container,
-      Draggable
+      Draggable,
+      BoardFormBtn
     },
     computed: {
       orderedList: {
@@ -146,6 +177,38 @@
             return null;
           }
         }
+      },
+      activeCard: function() {
+        if (this.orderedList != null) {
+          let cardId = this.$store.state.activeId;
+
+          console.log("this.orderedList --> ", this.orderedList);
+
+          for(let list of this.orderedList) {
+            for(let card of list.cards) {
+              if (card.id === cardId) {
+                let found = {
+                  id: card.id,
+                  createdAt: card.createdAt,
+                  updatedAt: card.updatedAt,
+                  info: card.info
+                };
+
+                console.log("IT'S FOUND!!!  ", found);
+
+                VoerroModal.show('caru');
+                return found;
+              }
+            }
+          }
+        }
+        
+        return {
+          id: "",
+          createdAt: "",
+          updatedAt: "",
+          info: ""
+        };
       },
       edit() {
         return faPenAlt
@@ -176,6 +239,43 @@
       }
     },
     methods: {
+      closeAddEditCard(){
+        VoerroModal.hide('caru');
+        this.$store.commit('setActiveId', '');
+      },
+      updateCard(data) {
+        if(data.length > 0){
+          let newCards = [];
+          let cardId = this.$store.state.activeId;
+          let listId = "";
+
+          console.log("cardId ***********  ", cardId);
+
+          for(let list of this.orderedList) {
+            for(let card of list.cards) {
+              if (card.id === cardId) {
+                listId = list.id;
+                console.log("7777777777777  START UPDATE::::", this.$store.state.activeId, "   data ",   data);
+                card.info = data;
+              }
+
+              console.log("INFO ===",  card.info);
+              newCards.push(card);
+            }
+
+            if (listId != "") {
+              console.log("CAAAARDs  ", newCards);
+
+              this.$store.dispatch('updateCard', {listId: listId, cards: newCards, cardId: cardId});
+              this.closeAddEditCard();            
+
+              break;
+            }
+
+            newCards = [];
+          }
+        }
+      },
       sendEmail: function () {
         if ("=========", this.user_email === '') {
           return;
@@ -307,5 +407,10 @@
 
   .removeUser{
     margin-left: 2rem;
+  }
+
+  .card-modify{
+    margin-top: 2rem;
+    margin-bottom: 2rem;
   }
 </style>

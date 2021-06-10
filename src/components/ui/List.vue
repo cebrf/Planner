@@ -20,17 +20,9 @@
           :key="card.id"
       >
         <SingleCard
-            v-if="activeId !== card.id"
             @deleteCard="deleteCard(card.id)"
             :id="card.id"
             :data="card.info"
-        />
-        <AddListCard
-            v-else
-            :value="card.info"
-            @action="updateCard"
-            @closeAddCard="closeAddEditCard"
-            btn-text="Update Card"
         />
       </Draggable>
       <AddListCard
@@ -57,15 +49,29 @@
 </template>
 
 <script>
+  import Vue from 'vue'
   import { faTimes, faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
   import AddListCard from "./AddListCard"
   import SingleCard from "./SingleCard"
   import { Container, Draggable } from "vue-smooth-dnd"
   import { BModal } from 'bootstrap-vue'
+  import { Modal, VoerroModal } from '@voerro/vue-modal';
+
+  Vue.component('modal', Modal);
+  window.VoerroModal = VoerroModal;
 
   export default {
     name: "List",
-    components: {SingleCard, AddListCard, Container, Draggable, BModal },
+    created() {
+      this.$store.commit('setActiveId', '');
+    },
+    components: {
+      SingleCard,
+      AddListCard,
+      Container,
+      Draggable,
+      BModal
+    },
     props: {
       title: {
         type: String,
@@ -91,6 +97,8 @@
         return faEdit
       },
       activeId() {
+        console.log("~~~~~~~~~~~  ", this.$store.state.activeId);
+        //VoerroModal.show('edit-card');
         return this.$store.state.activeId
       }
     }, data() {
@@ -106,20 +114,8 @@
         this.$store.commit('setActiveId', this.id);
       },
       closeAddEditCard(){
+        VoerroModal.hide('caru');
         this.$store.commit('setActiveId', '');
-      },
-      updateCard(data) {
-        if(data.length > 0){
-          let newCards = [];
-          for(let card of this.cards) {
-            if(card.id === this.activeId){
-              card.info = data
-            }
-            newCards.push(card);
-          }
-          this.$store.dispatch('updateCard', {listId: this.id, cards: newCards});
-          this.closeAddEditCard();
-        }
       },
       addCard(data) {
         if(data.length > 0){

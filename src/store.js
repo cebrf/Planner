@@ -60,7 +60,7 @@ const store = new Vuex.Store({
       state.boardsListener = listener
     },
     setActiveId(state, id){
-      state.activeId = id
+      state.activeId = id;
     },
     addLists(state, lists){
       state.lists = lists;
@@ -400,13 +400,25 @@ const store = new Vuex.Store({
         .update({
           cards: firebase.firestore.FieldValue.arrayUnion({
             id: uuidv4(),
-            info: data
+            info: data,
+            createdAt: firebase.firestore.Timestamp.now().toDate().toString().slice(0, 24),
+            updatedAt: firebase.firestore.Timestamp.now().toDate().toString().slice(0, 24)
           }),
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }).then(() => console.log('card added'))
         .catch((err) => console.log(err))
     },
-    updateCard(context, {listId, cards}){
+    updateCard(context, {listId, cards, cardId}){
+      console.log("~~~~ updateCard,   cardId = ", cardId);
+
+      let indx = cards.findIndex(card => {
+        return card.id === cardId
+      });
+      if (indx > -1) {
+        cards[indx].updatedAt = firebase.firestore.Timestamp.now().toDate().toString().slice(0, 24);
+        console.log("~~~~ fix info: ", cards[indx].updatedAt.info);
+      }
+
       firestore.collection('lists').doc(listId)
         .update({
           cards,

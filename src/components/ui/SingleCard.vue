@@ -16,8 +16,13 @@
 </template>
 
 <script>
+  import Vue from 'vue'
   import {faPenAlt, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
   import { BCard } from 'bootstrap-vue'
+  import { Modal, VoerroModal } from '@voerro/vue-modal';
+
+  Vue.component('modal', Modal);
+  window.VoerroModal = VoerroModal;
 
   export default {
     name: "SingleCard",
